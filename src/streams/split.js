@@ -32,7 +32,7 @@ const split = () => {
       var parts = buffer.split("\n");
       buffer = parts.pop();
 
-      for (var i = 0; i < parts.length; i++) {
+      for (var i = 0; i < parts.length; ++i) {
         writer.write(parts[i] + "\n");
         ++lineCount;
 

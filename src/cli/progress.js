@@ -6,7 +6,7 @@ const progress = () => {
   var length = 30;
   var color = null;
 
-  for (var i = 0; i < args.length; i++) {
+  for (var i = 0; i < args.length; ++i) {
     if (args[i] === "--duration" && args[i + 1]) {
       duration = Number(args[i + 1]);
     }

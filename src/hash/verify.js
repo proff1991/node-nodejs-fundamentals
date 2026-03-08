@@ -16,7 +16,7 @@ const verify = async () => {
 
     var files = Object.keys(checksums);
 
-    for (var i = 0; i < files.length; i++) {
+    for (var i = 0; i < files.length; ++i) {
       var fileName = files[i];
       var expectedHash = checksums[fileName];
 

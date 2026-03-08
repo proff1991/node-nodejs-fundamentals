@@ -41,7 +41,7 @@ const compressDir = async () => {
     var scan = async function (dir) {
       var items = await readdir(dir);
 
-      for (var i = 0; i < items.length; i++) {
+      for (var i = 0; i < items.length; ++i) {
         var full = join(dir, items[i]);
         var s = await stat(full);
 

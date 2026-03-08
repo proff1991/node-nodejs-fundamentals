@@ -20,7 +20,7 @@ const merge = async () => {
     var args = process.argv;
     var filesArg = null;
 
-    for (var i = 0; i < args.length; i++) {
+    for (var i = 0; i < args.length; ++i) {
       if (args[i] === "--files" && args[i + 1]) {
         filesArg = args[i + 1];
       }
@@ -33,7 +33,7 @@ const merge = async () => {
     } else {
       var items = await fs.readdir(partsPath);
 
-      for (var i = 0; i < items.length; i++) {
+      for (var i = 0; i < items.length; ++i) {
         if (path.extname(items[i]) === ".txt") {
           files.push(items[i]);
         }
@@ -48,7 +48,7 @@ const merge = async () => {
 
     var result = "";
 
-    for (var i = 0; i < files.length; i++) {
+    for (var i = 0; i < files.length; ++i) {
       var filePath = path.join(partsPath, files[i]);
 
       var fileStat;

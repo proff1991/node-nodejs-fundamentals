@@ -37,7 +37,7 @@ const restore = async () => {
 
     var entries = snapshot.entries;
 
-    for (var i = 0; i < entries.length; i++) {
+    for (var i = 0; i < entries.length; ++i) {
       var entry = entries[i];
       var targetPath = path.join(restoredPath, entry.path);
 

@@ -5,16 +5,16 @@ const lineNumberer = () => {
   var buffer = "";
 
   var transformer = new Transform({
-    transform(chunk, encoding, callback) {
+    transform(chunk, _, callback) {
       buffer += chunk.toString();
 
       var parts = buffer.split("\n");
       buffer = parts.pop();
 
-      for (var i = 0; i < parts.length; i++) {
+      for (var i = 0; i < parts.length; ++i) {
         var numbered = line + " | " + parts[i] + "\n";
         this.push(numbered);
-        line++;
+        ++line;
       }
 
       callback();

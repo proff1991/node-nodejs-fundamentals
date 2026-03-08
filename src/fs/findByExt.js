@@ -18,7 +18,7 @@ const findByExt = async () => {
     var ext = ".txt";
     var args = process.argv;
 
-    for (var i = 0; i < args.length; i++) {
+    for (var i = 0; i < args.length; ++i) {
       if (args[i] === "--ext" && args[i + 1]) {
         ext = args[i + 1].startsWith(".") ? args[i + 1] : "." + args[i + 1];
       }
@@ -29,7 +29,7 @@ const findByExt = async () => {
     var scan = async function (dir) {
       var items = await fs.readdir(dir);
 
-      for (var i = 0; i < items.length; i++) {
+      for (var i = 0; i < items.length; ++i) {
         var name = items[i];
         var fullPath = path.join(dir, name);
         var itemStat = await fs.stat(fullPath);
@@ -55,7 +55,7 @@ const findByExt = async () => {
 
     results.sort();
 
-    for (var i = 0; i < results.length; i++) {
+    for (var i = 0; i < results.length; ++i) {
       console.log(results[i]);
     }
   } catch {

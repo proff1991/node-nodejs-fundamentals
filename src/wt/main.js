@@ -59,7 +59,7 @@ const main = async () => {
     var min = Infinity;
     var minIndex = -1;
 
-    for (var i = 0; i < sortedChunks.length; i++) {
+    for (var i = 0; i < sortedChunks.length; ++i) {
       var idx = indexes[i];
 
       if (idx < sortedChunks[i].length) {
@@ -77,7 +77,7 @@ const main = async () => {
     };
 
     result.push(min);
-    indexes[minIndex]++;
+    ++indexes[minIndex];
   }
 
   console.log(result);
