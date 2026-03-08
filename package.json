@@ -16,7 +16,7 @@
     "cli:progress": "node src/cli/progress.js",
     "modules:dynamic": "node src/modules/dynamic.js uppercase",
     "hash:verify": "node src/hash/verify.js",
-    "streams:lineNumberer": "echo 'hello\nworld' | node src/streams/lineNumberer.js",
+    "streams:lineNumberer": "(echo hello & echo world) | node src/streams/lineNumberer.js",
     "streams:filter": "echo 'hello\nworld\ntest' | node src/streams/filter.js --pattern test",
     "streams:split": "node src/streams/split.js --lines 10",
     "zip:compressDir": "node src/zip/compressDir.js",
