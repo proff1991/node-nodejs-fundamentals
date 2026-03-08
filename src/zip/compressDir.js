@@ -1,78 +1,69 @@
-import { createReadStream, createWriteStream, promises as fs } from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import { stat, readdir, mkdir } from "fs/promises";
+import { createReadStream, createWriteStream } from "fs";
+import { PassThrough } from "stream";
 import { createBrotliCompress } from "zlib";
+import { join, dirname, relative } from "path";
+import { fileURLToPath } from "url";
+import { pipeline } from "stream/promises";
 
 const compressDir = async () => {
   try {
     var __filenamePolyfill = fileURLToPath(import.meta.url);
-    var __dirnamePolyfill = path.dirname(__filenamePolyfill);
+    var __dirnamePolyfill = dirname(__filenamePolyfill);
+    var root = join(__dirnamePolyfill, "../../");
 
-    var projectRoot = path.resolve(__dirnamePolyfill, "../../");
-    var workspacePath = path.join(projectRoot, "workspace");
-    var sourceDir = path.join(workspacePath, "toCompress");
-    var compressedDir = path.join(workspacePath, "compressed");
-    var archivePath = path.join(compressedDir, "archive.br");
+    var workspace = join(root, "workspace");
+    var sourceDir = join(workspace, "toCompress");
+    var outDir = join(workspace, "compressed");
+    var archive = join(outDir, "archive.br");
 
-    var stat = await fs.stat(sourceDir);
-    if (!stat.isDirectory()) {
-      throw new Error();
-    }
+    var st = await stat(sourceDir);
+    if (!st.isDirectory()) throw new Error();
 
-    await fs.mkdir(compressedDir, { recursive: true });
+    await mkdir(outDir, { recursive: true });
 
-    var files = [];
+    var globalStream = new PassThrough();
+
+    pipeline(
+      globalStream,
+      createBrotliCompress(),
+      createWriteStream(archive)
+    );
+
+    var writeMeta = function (meta) {
+      var json = JSON.stringify(meta);
+      var sizeBuf = Buffer.alloc(4);
+      sizeBuf.writeUInt32BE(Buffer.byteLength(json), 0);
+      globalStream.write(sizeBuf);
+      globalStream.write(Buffer.from(json));
+    };
 
     var scan = async function (dir) {
-      var items = await fs.readdir(dir);
+      var items = await readdir(dir);
 
       for (var i = 0; i < items.length; i++) {
-        var fullPath = path.join(dir, items[i]);
-        var itemStat = await fs.stat(fullPath);
+        var full = join(dir, items[i]);
+        var s = await stat(full);
 
-        if (itemStat.isDirectory()) {
-          await scan(fullPath);
-        } else if (itemStat.isFile()) {
-          files.push(fullPath);
+        var rel = relative(sourceDir, full);
+
+        if (s.isDirectory()) {
+          writeMeta({ path: rel, type: "directory" });
+          await scan(full);
+        } else {
+          writeMeta({ path: rel, type: "file", fileSize: s.size });
+
+          var rs = createReadStream(full);
+          for await (var chunk of rs) {
+            globalStream.write(chunk);
+          }
         }
       }
     };
 
     await scan(sourceDir);
 
-    var brotli = createBrotliCompress();
-    var output = createWriteStream(archivePath);
-
-    brotli.pipe(output);
-
-    for (var i = 0; i < files.length; i++) {
-      var filePath = files[i];
-
-      var relative = path
-        .relative(sourceDir, filePath)
-        .split(path.sep)
-        .join("/");
-
-      var header = Buffer.from("FILE:" + relative + "\n");
-
-      brotli.write(header);
-
-      await new Promise(function (resolve, reject) {
-        var stream = createReadStream(filePath);
-
-        stream.on("data", function (chunk) {
-          brotli.write(chunk);
-        });
-
-        stream.on("end", resolve);
-        stream.on("error", reject);
-      });
-
-      brotli.write(Buffer.from("\nEND\n"));
-    }
-
-    brotli.end();
-
+    globalStream.end();
   } catch {
     throw new Error("FS operation failed");
   }
